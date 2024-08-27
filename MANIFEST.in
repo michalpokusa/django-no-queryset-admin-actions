@@ -1,0 +1,1 @@
+recursive-include django_no_queryset_admin_actions/locale *.po *.mo
