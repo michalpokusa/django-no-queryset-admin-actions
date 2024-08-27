@@ -1,0 +1,49 @@
+name: Build and Publish to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_version:
+        description: 'Package version'
+        default: '0.0.0'
+        required: true
+        type: string
+      publish:
+        description: 'Publish to PyPI'
+        default: false
+        required: true
+        type: boolean
+
+jobs:
+  build-and-publish-to-pypi:
+    name: Build and Publish to PyPI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y gettext
+          python3 -m pip install --upgrade pip django build twine
+
+      - name: Compile .po files to .mo
+        run: django-admin compilemessages --ignore "**/django/**"
+
+      - name: Build package
+        env:
+          PACKAGE_VERSION: ${{ github.event.inputs.package_version }}
+        run: bash build-package.sh
+
+      - name: Publish to PyPI
+        if: ${{ github.event.inputs.publish == 'true' }}
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: twine upload --non-interactive dist/*
