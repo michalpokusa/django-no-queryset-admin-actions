@@ -1,0 +1,6 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "No items must be selected in order to perform this action."
+msgstr "Er hoeven geen items te worden geselecteerd om deze actie uit te voeren."
