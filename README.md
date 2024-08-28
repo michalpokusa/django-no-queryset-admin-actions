@@ -12,7 +12,9 @@
 
 Extension for the Django admin panel that makes it possible to add actions that do not require a queryset to run.
 
-It does one think and one thing only.
+Works with [django-admin-action-forms](https://pypi.org/project/django-admin-action-forms/).
+
+It does one thing and one thing only.
 
 - [🔌 Instalation](#-instalation)
 - [✏️ Example](#️-example)
