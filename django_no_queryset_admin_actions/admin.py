@@ -33,13 +33,11 @@ def remove_action_queryset_parameter(action_function):
     Decorator to remove `queryset` parameter from being passed to action function.
     """
 
-    def wrapper2(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         modeladmin, request, queryset, *rest = args
+        return action_function(modeladmin, request, *rest, **kwargs)
 
-        result = action_function(modeladmin, request, *rest, **kwargs)
-        return result
-
-    return wrapper2
+    return wrapper
 
 
 class NoQuerySetAdminActionsMixin(admin.ModelAdmin):
