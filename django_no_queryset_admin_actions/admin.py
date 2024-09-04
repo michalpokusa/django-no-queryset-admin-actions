@@ -76,6 +76,7 @@ class NoQuerySetAdminActionsMixin(admin.ModelAdmin):
             )
             return HttpResponseRedirect(request.get_full_path())
 
+        # Monkey-patch `getlist` method on `QueryDict` to pass check for selected items
         request.POST.getlist = getlist.__get__(request.POST, QueryDict)
 
         return super().changelist_view(request, extra_context)
