@@ -15,17 +15,15 @@ class truthy_list(list):
         return True
 
 
-def getlist(self, key, default=None):
+def patched_getlist(self: QueryDict, key: str, default=None):
     """
     Monkey-patched method for `QueryDict` class to return `truthy_list` instead of
     empty `list` when `key` is `ACTION_CHECKBOX_NAME`, which is used to check
     if any items are selected.
     """
+    items = super(QueryDict, self).getlist(key, default)
 
-    if key == helpers.ACTION_CHECKBOX_NAME:
-        return truthy_list()
-
-    return super(QueryDict, self).getlist(key, default)
+    return truthy_list(items) if key == helpers.ACTION_CHECKBOX_NAME else items
 
 
 def remove_action_queryset_parameter(action_function):
@@ -77,6 +75,6 @@ class NoQuerySetAdminActionsMixin(admin.ModelAdmin):
             return HttpResponseRedirect(request.get_full_path())
 
         # Monkey-patch `getlist` method on `QueryDict` to pass check for selected items
-        request.POST.getlist = getlist.__get__(request.POST, QueryDict)
+        request.POST.getlist = patched_getlist.__get__(request.POST, QueryDict)
 
         return super().changelist_view(request, extra_context)
