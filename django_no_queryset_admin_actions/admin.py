@@ -1,8 +1,12 @@
+from types import FunctionType
+
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
 from django.http import HttpRequest, HttpResponseRedirect
 from django.http.request import QueryDict
 from django.utils.translation import gettext as _
+
+from .decorators import no_queryset_action, NO_QUERYSET_ACTION_ATTRIBUTE
 
 
 class truthy_list(list):
@@ -26,33 +30,24 @@ def patched_getlist(self: QueryDict, key: str, default=None):
     return truthy_list(items) if key == helpers.ACTION_CHECKBOX_NAME else items
 
 
-def remove_action_queryset_parameter(action_function):
-    """
-    Decorator to remove `queryset` parameter from being passed to action function.
-    """
-
-    def wrapper(*args, **kwargs):
-        modeladmin, request, queryset, *rest = args
-        return action_function(modeladmin, request, *rest, **kwargs)
-
-    return wrapper
-
-
 class NoQuerySetAdminActionsMixin(admin.ModelAdmin):
 
-    no_queryset_actions: "list[str] | tuple[str]" = ()
-
-    def _get_no_queryset_actions(self) -> "list[str]":
-        return (self.get_action(action) for action in self.no_queryset_actions or [])
+    no_queryset_actions: "list[str | FunctionType]" = ()
 
     def get_actions(self, request: HttpRequest):
+        no_queryset_actions = [
+            action.__name__ if callable(action) else action
+            for action in self.no_queryset_actions or []
+        ]
+
         return {
             name: (
-                (remove_action_queryset_parameter(callable), name, description)
-                if name in (name for _, name, _ in self._get_no_queryset_actions())
-                else (callable, name, description)
+                (no_queryset_action(function), name, description)
+                if name in no_queryset_actions
+                and not getattr(function, NO_QUERYSET_ACTION_ATTRIBUTE, False)
+                else (function, name, description)
             )
-            for callable, name, description in super().get_actions(request).values()
+            for function, name, description in super().get_actions(request).values()
         }
 
     def changelist_view(self, request: HttpRequest, extra_context=None):
@@ -60,7 +55,10 @@ class NoQuerySetAdminActionsMixin(admin.ModelAdmin):
             return super().changelist_view(request, extra_context)
 
         action_name = request.POST.get("action", "")
-        if action_name not in (name for _, name, _ in self._get_no_queryset_actions()):
+        action = self.get_actions(request).get(action_name)
+        if action is None or not getattr(
+            action[0], NO_QUERYSET_ACTION_ATTRIBUTE, False
+        ):
             return super().changelist_view(request, extra_context)
 
         selected: "list[str]" = request.POST.getlist(helpers.ACTION_CHECKBOX_NAME)
