@@ -16,11 +16,11 @@ Works with [django-admin-action-forms](https://pypi.org/project/django-admin-act
 
 It does one thing and one thing only.
 
-- [🔌 Instalation](#-instalation)
+- [🔌 Installation](#-installation)
 - [✏️ Example](#️-example)
 
 
-## 🔌 Instalation
+## 🔌 Installation
 
 1. Install using ``pip``:
 
@@ -39,7 +39,7 @@ It does one thing and one thing only.
 
 ## ✏️ Example
 
-Let's say you have an action that fetches external orders from an API. You don't need a queryset to run this action, but Django requires it by default. By using this extension, you can add bypass that, and create actions that can be run without selecting any objects.
+Let's say you have an action that fetches external orders from an API. You don't need a queryset to run this action, but Django requires it by default. By using this extension, you can bypass that, and create actions that can be run without selecting any objects.
 
 <img src="https://raw.githubusercontent.com/michalpokusa/django-no-queryset-admin-actions/main/resources/example.gif" width="100%"></img>
 
