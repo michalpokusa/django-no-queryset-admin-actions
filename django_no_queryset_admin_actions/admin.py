@@ -5,9 +5,10 @@ from django.contrib import admin, messages
 from django.contrib.admin import helpers
 from django.http import HttpRequest, HttpResponseRedirect
 from django.http.request import QueryDict
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext
 
-from .decorators import no_queryset_action, NO_QUERYSET_ACTION_ATTRIBUTE
+from .decorators import no_queryset_action
+from .utils import is_no_queryset_action
 
 
 @contextmanager
@@ -46,30 +47,33 @@ class NoQuerySetAdminActionsMixin(admin.ModelAdmin):
     no_queryset_actions: "list[str | FunctionType]" = ()
 
     def get_actions(self, request: HttpRequest):
-        no_queryset_actions = [
+        no_queryset_action_names = [
             action.__name__ if callable(action) else action
             for action in self.no_queryset_actions or []
         ]
 
-        return {
-            name: (
-                (no_queryset_action(function), name, description)
-                if name in no_queryset_actions
-                and not getattr(function, NO_QUERYSET_ACTION_ATTRIBUTE, False)
-                else (function, name, description)
-            )
-            for function, name, description in super().get_actions(request).values()
-        }
+        actions = dict()
+
+        for function, name, description in super().get_actions(request).values():
+
+            if name in no_queryset_action_names:
+                actions[name] = (no_queryset_action(function), name, description)
+
+            else:
+                actions[name] = (function, name, description)
+
+        return actions
 
     def changelist_view(self, request: HttpRequest, extra_context=None):
         if "action" not in request.POST:
             return super().changelist_view(request, extra_context)
 
         action_name = request.POST.get("action", "")
-        action = self.get_actions(request).get(action_name)
-        if action is None or not getattr(
-            action[0], NO_QUERYSET_ACTION_ATTRIBUTE, False
-        ):
+        action_function, _, _ = self.get_actions(request).get(
+            action_name, (None, None, None)
+        )
+
+        if not is_no_queryset_action(action_function):
             return super().changelist_view(request, extra_context)
 
         # 'index' must be present in POST for check in 'Actions with no confirmation' block
@@ -83,7 +87,7 @@ class NoQuerySetAdminActionsMixin(admin.ModelAdmin):
         if selected or select_across:
             self.message_user(
                 request,
-                _("No items must be selected in order to perform this action."),
+                gettext("No items must be selected in order to perform this action."),
                 messages.WARNING,
             )
             return HttpResponseRedirect(request.get_full_path())

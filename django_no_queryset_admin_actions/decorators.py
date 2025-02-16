@@ -6,18 +6,20 @@ from django.contrib.admin import ModelAdmin
 from django.db.models import QuerySet
 from django.http import HttpRequest
 
-
-NO_QUERYSET_ACTION_ATTRIBUTE = "no_queryset_action"
+from .utils import (
+    is_no_queryset_action,
+    mark_as_no_queryset_action,
+)
 
 
 @overload
-def no_queryset_action(function: "FunctionType") -> "FunctionType": ...
+def no_queryset_action(function: FunctionType) -> FunctionType: ...
 
 
 @overload
 def no_queryset_action(
     *, permissions: "list[str] | None" = None, description: "str | None" = None
-) -> "FunctionType": ...
+) -> FunctionType: ...
 
 
 def no_queryset_action(
@@ -27,11 +29,11 @@ def no_queryset_action(
     description: "str | None" = None,
 ):
     """
-    Decorator to remove `queryset` parameter from being passed to action function.
+    Decorator that removes `queryset` parameter from being passed to action function.
     """
 
     def decorator(action_function):
-        if getattr(action_function, NO_QUERYSET_ACTION_ATTRIBUTE, None) is not None:
+        if is_no_queryset_action(action_function):
             return action_function
 
         @wraps(action_function)
@@ -44,7 +46,7 @@ def no_queryset_action(
 
             return action_function(modeladmin, request, *rest)
 
-        setattr(wrapper, NO_QUERYSET_ACTION_ATTRIBUTE, True)
+        mark_as_no_queryset_action(wrapper)
 
         if permissions is not None:
             setattr(wrapper, "allowed_permissions", permissions)
