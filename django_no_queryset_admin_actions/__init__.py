@@ -1,2 +1,2 @@
 from .admin import NoQuerySetAdminActionsMixin
-from .decorators import no_queryset_action
+from .decorators import no_queryset_action, optional_queryset_action

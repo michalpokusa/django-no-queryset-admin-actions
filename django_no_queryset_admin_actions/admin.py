@@ -7,8 +7,8 @@ from django.http import HttpRequest, HttpResponseRedirect
 from django.http.request import QueryDict
 from django.utils.translation import gettext
 
-from .decorators import no_queryset_action
-from .utils import is_no_queryset_action
+from .decorators import no_queryset_action, optional_queryset_action
+from .utils import is_no_queryset_action, is_optional_queryset_action
 
 
 @contextmanager
@@ -45,11 +45,16 @@ def patched_getlist(self: QueryDict, key: str, default=None):
 class NoQuerySetAdminActionsMixin(admin.ModelAdmin):
 
     no_queryset_actions: "list[str | FunctionType]" = ()
+    optional_queryset_actions: "list[str | FunctionType]" = ()
 
     def get_actions(self, request: HttpRequest):
         no_queryset_action_names = [
             action.__name__ if callable(action) else action
             for action in self.no_queryset_actions or []
+        ]
+        optional_queryset_action_names = [
+            action.__name__ if callable(action) else action
+            for action in self.optional_queryset_actions or []
         ]
 
         actions = dict()
@@ -58,6 +63,9 @@ class NoQuerySetAdminActionsMixin(admin.ModelAdmin):
 
             if name in no_queryset_action_names:
                 actions[name] = (no_queryset_action(function), name, description)
+
+            elif name in optional_queryset_action_names:
+                actions[name] = (optional_queryset_action(function), name, description)
 
             else:
                 actions[name] = (function, name, description)
@@ -73,7 +81,10 @@ class NoQuerySetAdminActionsMixin(admin.ModelAdmin):
             action_name, (None, None, None)
         )
 
-        if not is_no_queryset_action(action_function):
+        if not (
+            is_no_queryset_action(action_function)
+            or is_optional_queryset_action(action_function)
+        ):
             return super().changelist_view(request, extra_context)
 
         # 'index' must be present in POST for check in 'Actions with no confirmation' block
@@ -81,16 +92,19 @@ class NoQuerySetAdminActionsMixin(admin.ModelAdmin):
             with mutable_querydict(request.POST) as request_post:
                 request_post.setdefault("index", "0")
 
-        selected: "list[str]" = request.POST.getlist(helpers.ACTION_CHECKBOX_NAME)
-        select_across: bool = request.POST.get("select_across", "0") == "1"
+        if is_no_queryset_action(action_function):
+            selected: "list[str]" = request.POST.getlist(helpers.ACTION_CHECKBOX_NAME)
+            select_across: bool = request.POST.get("select_across", "0") == "1"
 
-        if selected or select_across:
-            self.message_user(
-                request,
-                gettext("No items must be selected in order to perform this action."),
-                messages.WARNING,
-            )
-            return HttpResponseRedirect(request.get_full_path())
+            if selected or select_across:
+                self.message_user(
+                    request,
+                    gettext(
+                        "No items must be selected in order to perform this action."
+                    ),
+                    messages.WARNING,
+                )
+                return HttpResponseRedirect(request.get_full_path())
 
         # Monkey-patch `getlist` method on `QueryDict` to pass check for selected items
         request.POST.getlist = patched_getlist.__get__(request.POST, QueryDict)

@@ -11,7 +11,7 @@ version = "%PACKAGE_VERSION%"
 description = "Extension for the Django admin panel that makes it possible to add actions that do not require a queryset to run."
 readme = "README.md"
 license = {file = "LICENSE"}
-keywords = ["django", "admin", "action", "actions", "queryset", "no queryset", "empty", "selection", "items", "no items"]
+keywords = ["django", "admin", "action", "actions", "queryset", "no queryset", "optional", "empty", "selection", "items", "no items"]
 authors = [
   {name = "Michał Pokusa"},
 ]
@@ -28,6 +28,7 @@ classifiers = [
     "Framework :: Django :: 4",
     "Framework :: Django :: 5.0",
     "Framework :: Django :: 5.1",
+    "Framework :: Django :: 5",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
