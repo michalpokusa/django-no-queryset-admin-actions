@@ -15,13 +15,13 @@ from .utils import (
 
 
 @overload
-def no_queryset_action(function: FunctionType) -> FunctionType: ...
+def no_queryset_action(function: FunctionType): ...
 
 
 @overload
 def no_queryset_action(
     *, permissions: "list[str] | None" = None, description: "str | None" = None
-) -> FunctionType: ...
+): ...
 
 
 def no_queryset_action(
@@ -70,13 +70,13 @@ def no_queryset_action(
 
 
 @overload
-def optional_queryset_action(function: FunctionType) -> FunctionType: ...
+def optional_queryset_action(function: FunctionType): ...
 
 
 @overload
 def optional_queryset_action(
     *, permissions: "list[str] | None" = None, description: "str | None" = None
-) -> FunctionType: ...
+): ...
 
 
 def optional_queryset_action(
