@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from types import FunctionType
 
 from django.contrib import admin, messages
@@ -7,6 +8,16 @@ from django.http.request import QueryDict
 from django.utils.translation import gettext as _
 
 from .decorators import no_queryset_action, NO_QUERYSET_ACTION_ATTRIBUTE
+
+
+@contextmanager
+def mutable_querydict(querydict: QueryDict):
+    """
+    Context manager that makes `QueryDict` mutable for the duration of the block.
+    """
+    querydict._mutable = True
+    yield querydict
+    querydict._mutable = False
 
 
 class truthy_list(list):
@@ -60,6 +71,11 @@ class NoQuerySetAdminActionsMixin(admin.ModelAdmin):
             action[0], NO_QUERYSET_ACTION_ATTRIBUTE, False
         ):
             return super().changelist_view(request, extra_context)
+
+        # 'index' must be present in POST for check in 'Actions with no confirmation' block
+        if "index" not in request.POST:
+            with mutable_querydict(request.POST) as request_post:
+                request_post.setdefault("index", "0")
 
         selected: "list[str]" = request.POST.getlist(helpers.ACTION_CHECKBOX_NAME)
         select_across: bool = request.POST.get("select_across", "0") == "1"
