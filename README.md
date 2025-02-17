@@ -16,8 +16,8 @@ Works with [django-admin-action-forms](https://pypi.org/project/django-admin-act
 
 - [🔌 Installation](#-installation)
 - [✏️ Examples](#️-examples)
-- [No queryset actions](#no-queryset-actions)
-- [Optional queryset actions](#optional-queryset-actions)
+  - [No queryset actions](#no-queryset-actions)
+  - [Optional queryset actions](#optional-queryset-actions)
 
 
 ## 🔌 Installation
