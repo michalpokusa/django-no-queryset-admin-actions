@@ -77,9 +77,12 @@ class NoQuerySetAdminActionsMixin(admin.ModelAdmin):
             return super().changelist_view(request, extra_context)
 
         action_name = request.POST.get("action", "")
-        action_function, _, _ = self.get_actions(request).get(
-            action_name, (None, None, None)
-        )
+        action = self.get_actions(request).get(action_name)
+
+        if not action:
+            return super().changelist_view(request, extra_context)
+
+        action_function, _, _ = action
 
         if not (
             is_no_queryset_action(action_function)
