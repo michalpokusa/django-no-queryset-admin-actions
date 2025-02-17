@@ -3,4 +3,4 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
 msgid "No items must be selected in order to perform this action."
-msgstr "Wykonanie tej akcji wymaga braku zaznaczonych elementów."
+msgstr "Wykonanie tej akcji wymaga braku zaznaczonych obiektów."
