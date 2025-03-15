@@ -1,10 +1,10 @@
+from collections.abc import Callable
 from functools import wraps
-from types import FunctionType
 from typing import overload
 
 from django.contrib.admin import ModelAdmin
 from django.db.models import QuerySet
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 
 from .utils import (
     is_no_queryset_action,
@@ -15,7 +15,7 @@ from .utils import (
 
 
 @overload
-def no_queryset_action(function: FunctionType): ...
+def no_queryset_action(function: "Callable[..., None | HttpResponse]"): ...
 
 
 @overload
@@ -25,7 +25,7 @@ def no_queryset_action(
 
 
 def no_queryset_action(
-    function: "FunctionType | None" = None,
+    function: "Callable[..., None | HttpResponse] | None" = None,
     *,
     permissions: "list[str] | None" = None,
     description: "str | None" = None,
@@ -70,7 +70,7 @@ def no_queryset_action(
 
 
 @overload
-def optional_queryset_action(function: FunctionType): ...
+def optional_queryset_action(function: "Callable[..., None | HttpResponse]"): ...
 
 
 @overload
@@ -80,7 +80,7 @@ def optional_queryset_action(
 
 
 def optional_queryset_action(
-    function: "FunctionType | None" = None,
+    function: "Callable[..., None | HttpResponse] | None" = None,
     *,
     permissions: "list[str] | None" = None,
     description: "str | None" = None,
