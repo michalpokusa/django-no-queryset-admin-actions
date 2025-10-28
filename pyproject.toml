@@ -7,10 +7,10 @@ packages = ["django_no_queryset_admin_actions"]
 
 [project]
 name = "django-no-queryset-admin-actions"
-version = "%PACKAGE_VERSION%"
+version = "1.2.1"
 description = "Extension for the Django admin panel that makes it possible to add actions that do not require a queryset to run."
 readme = "README.md"
-license = {file = "LICENSE"}
+license-files = ["LICENSE"]
 keywords = ["django", "admin", "action", "actions", "queryset", "no queryset", "optional", "empty", "selection", "items", "no items"]
 authors = [
   {name = "Michał Pokusa"},
@@ -30,7 +30,6 @@ classifiers = [
     "Framework :: Django :: 5.1",
     "Framework :: Django :: 5",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",
@@ -48,3 +47,4 @@ dependencies = ["django>=3.2"]
 
 [project.urls]
 Repository = "https://github.com/michalpokusa/django-no-queryset-admin-actions"
+Changelog = "https://github.com/michalpokusa/django-no-queryset-admin-actions/blob/main/CHANGELOG.md"

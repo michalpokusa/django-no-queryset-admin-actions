@@ -19,7 +19,6 @@ Works with [django-admin-action-forms](https://pypi.org/project/django-admin-act
   - [No queryset actions](#no-queryset-actions)
   - [Optional queryset actions](#optional-queryset-actions)
 
-
 ## 🔌 Installation
 
 1. Install using ``pip``:
@@ -27,7 +26,6 @@ Works with [django-admin-action-forms](https://pypi.org/project/django-admin-act
     ```bash
     $ pip3 install django-no-queryset-admin-actions
     ```
-
 
 2. Add `'django_no_queryset_admin_actions'` to your `INSTALLED_APPS` setting.
     ```python
@@ -45,7 +43,7 @@ Let's say you have an action that fetches external orders from an API. You don't
 but Django requires it by default. By using the `@no_queryset_action`, you can bypass that, and create actions that can
 be run without selecting any objects.
 
-<img src="https://raw.githubusercontent.com/michalpokusa/django-no-queryset-admin-actions/main/resources/example.gif" width="100%"></img>
+<img src="https://raw.githubusercontent.com/michalpokusa/django-no-queryset-admin-actions/main/docs/example.gif" width="100%"></img>
 
 ```python
 from django.contrib.admin import ModelAdmin, register
